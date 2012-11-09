@@ -1,0 +1,46 @@
+#
+# A simple theme that displays relevant, contextual information based on the Cloud theme.
+#
+# Authors:
+#   Fabio Kreusch <fabiokr@gmail.com>
+#
+
+# Load dependencies.
+pmodload 'helper'
+
+function prompt_fabio_precmd {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+
+  # Get Git repository information.
+  if (( $+functions[git-info] )); then
+    git-info
+  fi
+}
+
+function prompt_fabio_setup {
+  setopt LOCAL_OPTIONS
+  unsetopt XTRACE KSH_ARRAYS
+  prompt_opts=(cr percent subst)
+
+  # Load required functions.
+  autoload -Uz add-zsh-hook
+
+  # Add hook for calling git-info before each command.
+  add-zsh-hook precmd prompt_fabio_precmd
+
+  zstyle ':prezto:module:git:info' verbose 'yes'
+  zstyle ':prezto:module:git:info:action' format '%B%F{red}%s%f%b'
+  zstyle ':prezto:module:git:info:branch' format '%F{cyan}%b%f'
+  zstyle ':prezto:module:git:info:dirty' format '%F{yellow}⚡%f'
+  zstyle ':prezto:module:git:info:keys' format \
+    'prompt' '(%b%s) %D' \
+    'rprompt' ''
+
+  # Define prompts.
+  PROMPT='%B%F{green}%~ %f${git_info:+${(e)git_info[prompt]}} $%b '
+  RPROMPT='%D{%H:%M:%S}'
+  SPROMPT='zsh: correct %F{red}%R%f to %F{green}%r%f [nyae]? '
+}
+
+prompt_fabio_setup "$@"
